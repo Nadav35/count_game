@@ -10,8 +10,11 @@ class NumberedBox extends createjs.Container {
     const movieclip = new lib.NumberedBox();
     movieclip.numberText.text = number;
 
-    new createjs.ButtonHelper(movieclip, 0, 1, 2, false, new 
-      lib.NumberedBox(), 3);
+    movieclip.numberText.font = "28px Oswald";
+    movieclip.numberText.x += 2;
+    movieclip.numberText.y = 10;
+
+    
 
     this.addChild(movieclip);
     this.setBounds(0,0,50,50);
@@ -22,17 +25,18 @@ class NumberedBox extends createjs.Container {
 
   handleClick() {
     this.game.handleClick(this);
+    // createjs.Sound.play('jump');
   }
 }
 
 // Class to control the game date
 class GameData {
   constructor() {
-    this.amountOfbox = 3;
-    this.resetDate();
+    this.amountOfbox = 20;
+    this.resetData();
   }
 
-  resetDate() {
+  resetData() {
     this.currentNumber = 1;
   }
 
@@ -52,6 +56,8 @@ class GameData {
 class Game{
   constructor() {
     console.log(`Welcome to the game, version ${this.version()}`);
+
+    // this.loadSounds();
 
     this.canvas = document.querySelector('#game-canvas');
     this.stage = new createjs.Stage(this.canvas);
@@ -77,14 +83,29 @@ class Game{
     // keep re-drwaing the stage
     createjs.Ticker.on('tick', this.stage);
 
-    // background
-    this.stage.addChild(new lib.Background());
+    this.restartGame();
 
-    this.generateMultipleBoxes(this.gameData.amountOfbox);
+    
   }
   
   version() {
     return '1.0.0';
+  }
+
+  loadSounds() {
+    createjs.Sound.registerSound('sounds/jump7.aiff', "Jump");
+    createjs.Sound.registerSound('sounds/game-over.aiff', "Game Over");
+    createjs.Sound.alternateExtensions = ['ogg', 'wav'];
+  }
+  
+  restartGame() {
+    this.gameData.resetData();
+    this.stage.removeAllChildren();
+
+    // background
+    this.stage.addChild(new lib.Background());
+
+    this.generateMultipleBoxes(this.gameData.amountOfbox);
   }
 
   generateMultipleBoxes(amount=10) {
@@ -110,6 +131,10 @@ class Game{
       if (this.gameData.isGameWin()) {
         let gameOverView = new lib.GameOverView();
         this.stage.addChild(gameOverView);
+
+        gameOverView.restartButton.on('click', () => {
+          this.restartGame();
+        }).bind(this);
       }
     }
     
