@@ -9,6 +9,10 @@ class NumberedBox extends createjs.Container {
 
     const movieclip = new lib.NumberedBox();
     movieclip.numberText.text = number;
+
+    new createjs.ButtonHelper(movieclip, 0, 1, 2, false, new 
+      lib.NumberedBox(), 3);
+
     this.addChild(movieclip);
     this.setBounds(0,0,50,50);
 
@@ -24,7 +28,7 @@ class NumberedBox extends createjs.Container {
 // Class to control the game date
 class GameData {
   constructor() {
-    this.amoutOfbox = 20;
+    this.amountOfbox = 3;
     this.resetDate();
   }
 
@@ -41,8 +45,7 @@ class GameData {
   }
 
   isGameWin() {
-    // TODO
-    return false;
+    return (this.currentNumber > this.amountOfbox);
   }
 }
 
@@ -55,6 +58,8 @@ class Game{
 
     this.stage.width = this.canvas.width;
     this.stage.height = this.canvas.height;
+
+    this.stage.enableMouseOver();
 
     //enable tap on touch device
     createjs.Touch.enable(this.stage);
@@ -75,7 +80,7 @@ class Game{
     // background
     this.stage.addChild(new lib.Background());
 
-    this.generateMultipleBoxes();
+    this.generateMultipleBoxes(this.gameData.amountOfbox);
   }
   
   version() {
@@ -100,6 +105,12 @@ class Game{
     if (this.gameData.isRightNumber(numberedBox.number)) {
       this.stage.removeChild(numberedBox);
       this.gameData.nextNumber();
+      
+      // is game over?
+      if (this.gameData.isGameWin()) {
+        let gameOverView = new lib.GameOverView();
+        this.stage.addChild(gameOverView);
+      }
     }
     
   }
